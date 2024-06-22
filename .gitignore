@@ -2,3 +2,4 @@ node_modules/
 basicserver.js/
 greeting.txt/
 notes.js/
+.env
