@@ -1,11 +1,23 @@
 const express = require("express");
 const app = express();
 const db = require("./db");
-require('dotenv').config();
-
+require("dotenv").config();
+const passport = require("./auth");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json()); //req.body
-const PORT=process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+
+//Mjiddleware Function
+const logRequest = (req, res, next) => {
+  console.log(
+    `[${new Date().toLocaleString()}] Request Made to : ${req.originalUrl}`
+  );
+  next(); //Move on to the nest Phase
+};
+app.use(logRequest);
+
+app.use(passport.initialize());
+const localAuthMiddleware = passport.authenticate("local", { session: false });
 
 app.get("/", function (req, res) {
   res.send("Welcome to our Hotel");
@@ -96,10 +108,8 @@ const personRoutes = require("./routes/personRoutes");
 const menuItemRoutes = require("./routes/menuItemRoutes");
 
 //use routers
-app.use("/person", personRoutes);
+app.use("/person", localAuthMiddleware, personRoutes);
 app.use("/menu", menuItemRoutes);
-
-
 
 app.listen(PORT, () => {
   console.log("listening to port 3000");
